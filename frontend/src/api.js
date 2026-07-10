@@ -125,18 +125,12 @@ export async function populateHtmlCards(dataText) {
   return res.json()
 }
 
-export async function extractLandUsePrompt(files) {
-  const form = new FormData()
-  files.forEach((f) => form.append('files', f))
-  const res = await fetch(`${BASE}/prompt-builder/extract`, { method: 'POST', body: form })
-  await handle(res)
-  return res.json()
-}
-
-export async function composeLandUsePrompt(files) {
-  const form = new FormData()
-  files.forEach((f) => form.append('files', f))
-  const res = await fetch(`${BASE}/prompt-builder/compose-prompt`, { method: 'POST', body: form })
+export async function composeLubLookupPrompt(zoneCode, municipality, question) {
+  const res = await fetch(`${BASE}/lub-lookup/compose-prompt`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ zone_code: zoneCode, municipality, question }),
+  })
   await handle(res)
   return res.json()
 }

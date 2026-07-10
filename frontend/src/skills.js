@@ -40,11 +40,11 @@ export const SKILLS = [
     type: 'deterministic',
   },
   {
-    key: 'land-use-prompt',
-    path: '/land-use-prompt',
-    icon: '📝',
-    name: 'Land Use Prompt Builder',
-    description: 'Extract fields from uploaded planning documents and rebuild the standardized Land Use Feasibility Report prompt.',
+    key: 'lub-lookup',
+    path: '/lub-lookup',
+    icon: '⚖️',
+    name: 'NS LUB Lookup',
+    description: 'Look up zoning requirements — permitted uses, setbacks, height, overlays — for any zone code and municipality in Nova Scotia.',
     type: 'llm',
   },
 ]

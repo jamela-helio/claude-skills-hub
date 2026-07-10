@@ -34,6 +34,14 @@ def load_skill_instructions(skill_name: str) -> str:
     return skill_path.read_text(encoding="utf-8")
 
 
+def load_skill_reference(skill_name: str, relative_path: str) -> str:
+    """Read a bundled reference file, e.g. relative_path='references/lub-index.md'."""
+    ref_path = SKILLS_ROOT / skill_name / skill_name / relative_path
+    if not ref_path.exists():
+        raise FileNotFoundError(f"Reference file not found for '{skill_name}' at {ref_path}.")
+    return ref_path.read_text(encoding="utf-8")
+
+
 _RUNTIME_NOTE = (
     "You are running inside a web application, not the Claude Code CLI. There "
     "is no sandbox filesystem, no ability to shell out to pandoc, LibreOffice, "
@@ -44,9 +52,26 @@ _RUNTIME_NOTE = (
     "single well-structured written response instead."
 )
 
+_LIVE_TOOLS_NOTE = (
+    "This skill depends on live web search/fetch (and, ideally, Google Drive "
+    "access to Helio's LUB database) to retrieve the actual bylaw text — "
+    "reference files bundled below only provide the index of where to look, "
+    "not the LUB content itself. Run this prompt somewhere Claude actually has "
+    "those tools available: Claude.ai with web search enabled, or Claude Code "
+    "with the Google Drive MCP connected. If neither is available, do the best "
+    "you can from general knowledge and clearly flag which parts are "
+    "unverified against the actual current bylaw text."
+)
 
-def _build_system_prompt(skill_name: str) -> str:
-    return load_skill_instructions(skill_name) + "\n\n---\n\n" + _RUNTIME_NOTE
+
+def _build_system_prompt(skill_name: str, reference_paths: list[str] | None = None, needs_live_tools: bool = False) -> str:
+    parts = [load_skill_instructions(skill_name)]
+    for ref_path in reference_paths or []:
+        parts.append(f"\n\n---\n\nBundled reference file `{ref_path}`:\n\n{load_skill_reference(skill_name, ref_path)}")
+    parts.append("\n\n---\n\n" + _RUNTIME_NOTE)
+    if needs_live_tools:
+        parts.append("\n\n" + _LIVE_TOOLS_NOTE)
+    return "".join(parts)
 
 
 def _build_user_message(user_inputs: dict, uploaded_files_context: str) -> str:
@@ -111,3 +136,24 @@ def compose_manual_prompt(
 ---
 
 {user_message}{image_note}"""
+
+
+def compose_manual_query_prompt(
+    skill_name: str,
+    query_text: str,
+    reference_paths: list[str] | None = None,
+    needs_live_tools: bool = False,
+) -> str:
+    """
+    Like compose_manual_prompt, but for skills driven by a free-text query
+    rather than file uploads (e.g. ns-lub-lookup's "zone code + municipality").
+    Bundled reference files are embedded inline since a plain Claude.ai/Claude
+    Code chat won't otherwise have filesystem access to them.
+    """
+    system_prompt = _build_system_prompt(skill_name, reference_paths=reference_paths, needs_live_tools=needs_live_tools)
+    return f"""{system_prompt}
+
+---
+
+User request:
+{query_text}"""

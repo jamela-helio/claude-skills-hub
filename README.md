@@ -1,8 +1,8 @@
 # Claude Skills Web Hub
 
-Web front-end for the six Helio Claude Skills (GWA autofill, GWA Level 1 report,
-Helio Pre-Dev report, Helio feasibility tiers, HTML card populator, Land Use
-prompt builder). FastAPI backend + React (Vite) frontend, dark glassmorphism UI.
+Web front-end for six Helio Claude Skills (GWA autofill, GWA Level 1 report,
+Helio Pre-Dev report, Helio feasibility tiers, HTML card populator, NS LUB
+lookup). FastAPI backend + React (Vite) frontend, dark glassmorphism UI.
 
 ## Setup
 
@@ -35,19 +35,26 @@ Visit http://localhost:5173. The Vite dev server proxies `/api/*` to
 - **Deterministic (no API key needed, ever):** GWA Calculator Autofill, HTML
   Layout Card Populator.
 - **LLM-assisted, no API key needed by default:** GWA Level 1 Report, Helio
-  Pre-Dev Report, Helio Feasibility Tiers, Land Use Prompt Builder. Each of
-  these loads the corresponding `SKILL.md` from `SKILLS_ROOT` and, by default,
-  runs in **manual mode**: the app composes the full prompt (skill
-  instructions + your inputs + extracted file text) and shows a "Copy Prompt"
-  button. You paste it into Claude.ai or Claude Code yourself — free, under
-  your existing plan — then paste the response back in to get a formatted
-  `.docx` download (or, for Land Use Prompt Builder, just copy Claude's
-  response directly).
+  Pre-Dev Report, Helio Feasibility Tiers, NS LUB Lookup. Each of these loads
+  the corresponding `SKILL.md` from `SKILLS_ROOT` and, by default, runs in
+  **manual mode**: the app composes the full prompt (skill instructions +
+  your inputs + extracted file text) and shows a "Copy Prompt" button. You
+  paste it into Claude.ai or Claude Code yourself — free, under your existing
+  plan — then paste the response back in to get a formatted `.docx` download
+  (or, for NS LUB Lookup, just copy Claude's answer directly — its bundled
+  reference indexes are embedded straight into the composed prompt since a
+  plain chat has no filesystem access to them).
 
-  If you'd rather the app call Claude automatically end-to-end, set
-  `ANTHROPIC_API_KEY` in `backend/.env` — the older one-click `/generate`,
-  `/assemble`, and `/extract` endpoints still exist and work once a key is
-  present, but the frontend UI currently only wires up the manual flow.
+  NS LUB Lookup depends on live web search and/or Google Drive access to
+  actually retrieve bylaw text — it works best run in Claude.ai with web
+  search enabled, or Claude Code with the Google Drive MCP connected. The
+  composed prompt says so explicitly.
+
+  If you'd rather the app call Claude automatically end-to-end for the 3
+  report-generation tools, set `ANTHROPIC_API_KEY` in `backend/.env` — the
+  older one-click `/generate` and `/assemble` endpoints still exist and work
+  once a key is present, but the frontend UI currently only wires up the
+  manual flow.
 
 ## Deployment
 
