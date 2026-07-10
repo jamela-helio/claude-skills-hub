@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcel Info – QGIS Layout</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1e27;
+    --surface: #22273a;
+    --border: #2e3550;
+    --accent: #5bc8af;
+    --accent2: #e8a14b;
+    --text: #dde3f0;
+    --muted: #7a86a8;
+    --label: #a0aac8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 8px;
+  }
+
+  .card {
+    width: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .header {
+    background: linear-gradient(135deg, #2c3352 0%, #1f2840 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-left .pid {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .header-left .address {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .area-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .area-badge {
+    background: var(--accent);
+    color: #0d1117;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .area-badge-sub {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .zone-block {
+    background: #1c2035;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+  }
+
+  .zone-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .zone-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .zone-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+
+  .zone-full-desc {
+    font-size: 12px;
+    color: var(--label);
+    line-height: 1.4;
+    padding-left: 0;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 16px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    padding: 12px 16px 6px;
+  }
+
+  .rows {
+    padding: 2px 0 10px;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 16px;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+
+  .row:hover {
+    background: rgba(91,200,175,0.05);
+  }
+
+  .row-label {
+    font-size: 13px;
+    color: var(--label);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .row-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .footer-text {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="pid">PID: —</div>
+      <div class="address">—</div>
+    </div>
+    <div class="area-stack">
+      <div class="area-badge">— m²</div>
+      <div class="area-badge-sub">— ft²</div>
+    </div>
+  </div>
+
+  <div class="zone-block">
+    <div class="zone-row">
+      <span class="zone-label">Zone</span>
+      <span class="zone-value">—</span>
+    </div>
+    <div class="zone-full-desc">—</div>
+  </div>
+
+  <div class="section-title">Property Details</div>
+  <div class="rows">
+    <div class="row">
+      <span class="row-label">Plan Area</span>
+      <span class="row-value">—</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="dot"></div>
+    <span class="footer-text">— Municipality · Parcel Information</span>
+  </div>
+
+</div>
+
+</body>
+</html>

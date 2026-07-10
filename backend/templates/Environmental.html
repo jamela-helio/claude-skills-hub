@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcel Info – QGIS Layout</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1e27;
+    --surface: #22273a;
+    --border: #2e3550;
+    --accent: #5bc8af;
+    --accent2: #e8a14b;
+    --accent3: #7ab8ff;
+    --text: #dde3f0;
+    --muted: #7a86a8;
+    --label: #a0aac8;
+    --section-bg: rgba(255, 255, 255, 0.03);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 5px;
+  }
+  .card {
+    width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+  .header {
+    background: linear-gradient(135deg, #2c3352 0%, #1f2840 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-left .pid {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .header-left .address {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+  }
+  .area-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .area-badge {
+    background: var(--accent);
+    color: #0d1117;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+  .area-badge-sub {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+  .zone-block {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .zone-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+  }
+  .zone-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+  .zone-full-desc {
+    font-size: 12px;
+    color: var(--label);
+    margin-top: 2px;
+  }
+  .section-title {
+    background: var(--section-bg);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 16px;
+  }
+  .row-label {
+    font-size: 12px;
+    color: var(--label);
+    flex: 1;
+  }
+  .row-value {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: right;
+    flex: 1.5;
+    line-height: 1.4;
+  }
+  .env-list {
+    padding: 8px 0;
+  }
+  .env-item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 16px;
+  }
+  .env-label {
+    font-size: 11px;
+    color: var(--label);
+  }
+  .env-value {
+    font-size: 11px;
+    color: var(--accent3);
+    font-weight: 600;
+    text-align: right;
+  }
+  .status-text {
+    color: var(--accent) !important;
+    font-style: italic;
+    font-size: 11px !important;
+  }
+  .description-block {
+    padding: 14px 16px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--label);
+    background: rgba(0,0,0,0.2);
+    border-top: 1px solid var(--border);
+  }
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #1e2333;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+  }
+  .footer-text {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="header-left">
+      <div class="pid">PID: —</div>
+      <div class="address">—</div>
+    </div>
+    <div class="area-stack">
+      <div class="area-badge">— m²</div>
+      <div class="area-badge-sub">— ft²</div>
+    </div>
+  </div>
+
+  <div class="zone-block">
+    <div class="zone-row">
+      <span class="zone-label">Zone</span>
+      <span class="zone-value">—</span>
+    </div>
+    <div class="zone-full-desc">—</div>
+  </div>
+
+  <div class="section-title">Property Details</div>
+  <div class="rows">
+    <div class="row">
+      <span class="row-label">Plan Area</span>
+      <span class="row-value">—</span>
+    </div>
+  </div>
+
+  <div class="section-title">Geology &amp; Surface Form</div>
+  <div class="row">
+    <span class="row-label">Groundwater Region</span>
+    <span class="row-value">—</span>
+  </div>
+  <div class="row">
+    <span class="row-label">Surficial Geology</span>
+    <span class="row-value">—</span>
+  </div>
+
+  <div class="section-title">Environmental Constraints</div>
+  <div class="env-list">
+    <div class="env-item-row">
+      <div class="env-label">VS30 Velocity</div>
+      <div class="env-value">—</div>
+    </div>
+    <div class="env-item-row">
+      <div class="env-label">Surface Form</div>
+      <div class="env-value">—</div>
+    </div>
+    <div class="env-item-row">
+      <div class="env-label">Karst Risk</div>
+      <div class="env-value">—</div>
+    </div>
+    <div class="env-item-row">
+      <div class="env-label">Flood Risk</div>
+      <div class="env-value">—</div>
+    </div>
+  </div>
+
+  <div class="section-title">Drainage &amp; Hydrology</div>
+  <div class="row">
+    <span class="row-label">Soil Drainage</span>
+    <span class="row-value">—</span>
+  </div>
+  <div class="row">
+    <span class="row-label">Depth-to-Water (DTW)</span>
+    <span class="row-value">—</span>
+  </div>
+  <div class="row">
+    <span class="row-label">Saltwater Intrusion</span>
+    <span class="row-value">—</span>
+  </div>
+  <div class="row">
+    <span class="row-label">Site Condition</span>
+    <span class="row-value status-text">—</span>
+  </div>
+
+  <div class="description-block">
+    <div style="font-size: 9px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600; letter-spacing: 0.1em;">Topography Detail</div>
+    —
+  </div>
+
+  <div class="footer">
+    <div class="dot"></div>
+    <span class="footer-text">— Municipality · Parcel Report</span>
+  </div>
+</div>
+</body>
+</html>
