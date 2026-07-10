@@ -32,12 +32,22 @@ Visit http://localhost:5173. The Vite dev server proxies `/api/*` to
 
 ## What's deterministic vs. LLM-assisted
 
-- **Deterministic (no API key needed):** GWA Calculator Autofill, HTML Layout
-  Card Populator.
-- **LLM-assisted (requires `ANTHROPIC_API_KEY`):** GWA Level 1 Report, Helio
+- **Deterministic (no API key needed, ever):** GWA Calculator Autofill, HTML
+  Layout Card Populator.
+- **LLM-assisted, no API key needed by default:** GWA Level 1 Report, Helio
   Pre-Dev Report, Helio Feasibility Tiers, Land Use Prompt Builder. Each of
-  these loads the corresponding `SKILL.md` from `SKILLS_ROOT` as the Claude
-  system prompt.
+  these loads the corresponding `SKILL.md` from `SKILLS_ROOT` and, by default,
+  runs in **manual mode**: the app composes the full prompt (skill
+  instructions + your inputs + extracted file text) and shows a "Copy Prompt"
+  button. You paste it into Claude.ai or Claude Code yourself — free, under
+  your existing plan — then paste the response back in to get a formatted
+  `.docx` download (or, for Land Use Prompt Builder, just copy Claude's
+  response directly).
+
+  If you'd rather the app call Claude automatically end-to-end, set
+  `ANTHROPIC_API_KEY` in `backend/.env` — the older one-click `/generate`,
+  `/assemble`, and `/extract` endpoints still exist and work once a key is
+  present, but the frontend UI currently only wires up the manual flow.
 
 ## Deployment
 

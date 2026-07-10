@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { downloadBlob, generateGwaReport } from '../api.js'
+import ManualLlmPanel from '../components/ManualLlmPanel.jsx'
+import { composeGwaReportPrompt, renderGwaReport } from '../api.js'
 
 export default function GwaReport() {
   const [projectName, setProjectName] = useState('')
@@ -9,40 +10,35 @@ export default function GwaReport() {
   const [lotCount, setLotCount] = useState('')
   const [calculatorOutputs, setCalculatorOutputs] = useState('')
   const [extraContext, setExtraContext] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [done, setDone] = useState(false)
 
-  async function handleGenerate() {
-    setLoading(true)
-    setError(null)
-    setDone(false)
-    let parsedOutputs = {}
-    if (calculatorOutputs.trim()) {
-      try {
-        parsedOutputs = JSON.parse(calculatorOutputs)
-      } catch (_) {
-        parsedOutputs = { raw_notes: calculatorOutputs }
-      }
+  function siteParams() {
+    return {
+      project_name: projectName,
+      address,
+      municipality,
+      proposed_lot_count: lotCount,
     }
+  }
+
+  function parsedCalculatorOutputs() {
+    if (!calculatorOutputs.trim()) return {}
     try {
-      const blob = await generateGwaReport({
-        site_params: {
-          project_name: projectName,
-          address,
-          municipality,
-          proposed_lot_count: lotCount,
-        },
-        calculator_outputs: parsedOutputs,
-        extra_context: extraContext,
-      })
-      downloadBlob(blob, `${(projectName || 'GWA_Report').replace(/\s+/g, '_')}_Level1_GWA.docx`)
-      setDone(true)
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
+      return JSON.parse(calculatorOutputs)
+    } catch (_) {
+      return { raw_notes: calculatorOutputs }
     }
+  }
+
+  async function handleCompose() {
+    return composeGwaReportPrompt({
+      site_params: siteParams(),
+      calculator_outputs: parsedCalculatorOutputs(),
+      extra_context: extraContext,
+    })
+  }
+
+  async function handleRender(responseText) {
+    return renderGwaReport({ site_params: siteParams(), response_text: responseText })
   }
 
   return (
@@ -52,7 +48,7 @@ export default function GwaReport() {
       </Link>
       <div className="page-header">
         <h1>📄 GWA Level 1 Report</h1>
-        <p>Feed calculator outputs and site context to Claude to draft a full NSECC-compliant Level 1 Groundwater Assessment report (.docx).</p>
+        <p>Compose a prompt from calculator outputs and site context, run it in Claude yourself (no API key needed), then paste the response back in to get a formatted .docx.</p>
       </div>
 
       <div className="tool-layout">
@@ -76,18 +72,18 @@ export default function GwaReport() {
               <input type="number" value={lotCount} onChange={(e) => setLotCount(e.target.value)} />
             </div>
           </div>
-          <button className="btn" type="button" onClick={handleGenerate} disabled={loading} style={{ width: '100%', justifyContent: 'center' }}>
-            {loading ? <span className="spinner" /> : '✨'} {loading ? 'Drafting report…' : 'Generate .docx Report'}
-          </button>
-          {error && <div className="alert error" style={{ marginTop: 16 }}>{error}</div>}
-          {done && <div className="alert info" style={{ marginTop: 16 }}>Report generated — check your downloads.</div>}
+          <div className="section-title">Calculator outputs (paste from GWA Autofill, JSON or notes)</div>
+          <textarea className="textarea-lg" value={calculatorOutputs} onChange={(e) => setCalculatorOutputs(e.target.value)} placeholder='{"C14_well_depth": 60.2, "C24_K_optimistic": 1.2, ...}' style={{ width: '100%', minHeight: 160 }} />
+          <div className="section-title">Additional context (well logs summary, water chemistry, notes)</div>
+          <textarea className="textarea-lg" value={extraContext} onChange={(e) => setExtraContext(e.target.value)} placeholder="Paste well log summaries, water chemistry findings, or any other site notes here…" style={{ width: '100%', minHeight: 160 }} />
         </div>
 
         <div className="glass-card">
-          <div className="section-title">Calculator Outputs (paste from GWA Autofill, JSON or notes)</div>
-          <textarea className="textarea-lg" value={calculatorOutputs} onChange={(e) => setCalculatorOutputs(e.target.value)} placeholder='{"C14_well_depth": 60.2, "C24_K_optimistic": 1.2, ...}' style={{ width: '100%', minHeight: 220 }} />
-          <div className="section-title">Additional context (well logs summary, water chemistry, notes)</div>
-          <textarea className="textarea-lg" value={extraContext} onChange={(e) => setExtraContext(e.target.value)} placeholder="Paste well log summaries, water chemistry findings, or any other site notes here…" style={{ width: '100%', minHeight: 220 }} />
+          <ManualLlmPanel
+            onCompose={handleCompose}
+            onRender={handleRender}
+            downloadFilename={`${(projectName || 'GWA_Report').replace(/\s+/g, '_')}_Level1_GWA.docx`}
+          />
         </div>
       </div>
     </div>

@@ -1,32 +1,22 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Dropzone from '../components/Dropzone.jsx'
-import { assembleFeasibilityReport, downloadBlob } from '../api.js'
+import ManualLlmPanel from '../components/ManualLlmPanel.jsx'
+import { composeFeasibilityReportPrompt, renderFeasibilityReport } from '../api.js'
 
 export default function HelioReport() {
   const [address, setAddress] = useState('')
   const [files, setFiles] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [done, setDone] = useState(false)
 
-  async function handleAssemble() {
+  async function handleCompose() {
     if (files.length === 0) {
-      setError('Upload a zip (or the individual GIS/architectural files) first.')
-      return
+      throw new Error('Upload a zip (or the individual GIS/architectural files) first.')
     }
-    setLoading(true)
-    setError(null)
-    setDone(false)
-    try {
-      const blob = await assembleFeasibilityReport(address, files)
-      downloadBlob(blob, `${(address || 'Pre_Development_Assessment').replace(/\s+/g, '_')}.docx`)
-      setDone(true)
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
+    return composeFeasibilityReportPrompt(address, files)
+  }
+
+  async function handleRender(responseText) {
+    return renderFeasibilityReport(address, responseText)
   }
 
   return (
@@ -36,26 +26,31 @@ export default function HelioReport() {
       </Link>
       <div className="page-header">
         <h1>🏗️ Helio Pre-Dev Report</h1>
-        <p>Upload a zip containing GIS research and architectural drawings to assemble a polished Pre-Development Site Assessment report (.docx).</p>
+        <p>Upload a zip of GIS research and architectural drawings, compose a prompt, run it in Claude yourself (no API key needed), then paste the response back in for a polished .docx.</p>
       </div>
 
-      <div className="glass-card" style={{ maxWidth: 640 }}>
-        <div className="field">
-          <label>Project address</label>
-          <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. 14 Holland Ave, Bedford" />
+      <div className="tool-layout">
+        <div className="glass-card">
+          <div className="field">
+            <label>Project address</label>
+            <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. 14 Holland Ave, Bedford" />
+          </div>
+          <Dropzone
+            label="GIS research + architectural drawings (zip or individual files)"
+            hint="Drop a .zip, or the GIS Summary Report, maps, and site plans directly"
+            multiple
+            onFiles={setFiles}
+            files={files}
+          />
         </div>
-        <Dropzone
-          label="GIS research + architectural drawings (zip or individual files)"
-          hint="Drop a .zip, or the GIS Summary Report, maps, and site plans directly"
-          multiple
-          onFiles={setFiles}
-          files={files}
-        />
-        <button className="btn" type="button" onClick={handleAssemble} disabled={loading} style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}>
-          {loading ? <span className="spinner" /> : '✨'} {loading ? 'Assembling report…' : 'Assemble Report'}
-        </button>
-        {error && <div className="alert error" style={{ marginTop: 16 }}>{error}</div>}
-        {done && <div className="alert info" style={{ marginTop: 16 }}>Report generated — check your downloads.</div>}
+
+        <div className="glass-card">
+          <ManualLlmPanel
+            onCompose={handleCompose}
+            onRender={handleRender}
+            downloadFilename={`${(address || 'Pre_Development_Assessment').replace(/\s+/g, '_')}.docx`}
+          />
+        </div>
       </div>
     </div>
   )

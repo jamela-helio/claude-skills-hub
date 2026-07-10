@@ -74,8 +74,9 @@ async def gwa_autofill(
 @router.post("/report/generate")
 async def generate_gwa_report(payload: dict = Body(...)):
     """
-    LLM-assisted: feed calculator outputs + site context to Claude using the
-    gwa-level1-report SKILL.md as the system prompt, then render to .docx.
+    LLM-assisted (requires ANTHROPIC_API_KEY): feed calculator outputs + site
+    context to Claude using the gwa-level1-report SKILL.md as the system
+    prompt, then render to .docx.
     """
     site_params = payload.get("site_params", {})
     calculator_outputs = payload.get("calculator_outputs", {})
@@ -91,6 +92,43 @@ async def generate_gwa_report(payload: dict = Body(...)):
     except (RuntimeError, FileNotFoundError) as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
+    return _render_gwa_docx(site_params, report_text)
+
+
+@router.post("/report/compose-prompt")
+async def compose_gwa_report_prompt(payload: dict = Body(...)):
+    """
+    No API key needed: assemble the same prompt run_claude_skill would send,
+    for the user to paste into Claude.ai / Claude Code manually.
+    """
+    site_params = payload.get("site_params", {})
+    calculator_outputs = payload.get("calculator_outputs", {})
+    extra_context = payload.get("extra_context", "")
+
+    try:
+        prompt = llm_service.compose_manual_prompt(
+            skill_name="gwa-level1-report",
+            user_inputs=site_params,
+            uploaded_files_context=json.dumps(calculator_outputs, indent=2) + "\n\n" + extra_context,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    return {"prompt": prompt}
+
+
+@router.post("/report/render")
+async def render_gwa_report(payload: dict = Body(...)):
+    """Turn Claude's pasted-back response text into a downloadable .docx."""
+    site_params = payload.get("site_params", {})
+    response_text = payload.get("response_text", "")
+    if not response_text.strip():
+        raise HTTPException(status_code=422, detail="response_text is required")
+
+    return _render_gwa_docx(site_params, response_text)
+
+
+def _render_gwa_docx(site_params: dict, report_text: str) -> Response:
     docx_bytes = markdown_to_docx_bytes(
         title="Level 1 Groundwater Assessment",
         subtitle=site_params.get("project_name", ""),

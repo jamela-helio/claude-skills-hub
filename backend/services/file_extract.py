@@ -2,6 +2,12 @@
 import io
 import zipfile
 
+IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tif", ".tiff", ".webp")
+
+
+def is_image_filename(filename: str) -> bool:
+    return filename.lower().endswith(IMAGE_EXTENSIONS)
+
 
 def extract_text_from_file(filename: str, raw: bytes) -> str:
     lower = filename.lower()
@@ -41,3 +47,8 @@ def extract_zip_context(raw: bytes) -> str:
             text = extract_text_from_file(info.filename, member_bytes)
             sections.append(f"=== {info.filename} ===\n{text}")
     return "\n\n".join(sections)
+
+
+def zip_contains_images(raw: bytes) -> bool:
+    with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+        return any(is_image_filename(info.filename) for info in zf.infolist() if not info.is_dir())

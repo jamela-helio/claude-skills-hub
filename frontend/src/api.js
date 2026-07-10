@@ -39,11 +39,50 @@ export async function generateGwaReport(payload) {
   return res.blob()
 }
 
+export async function composeGwaReportPrompt(payload) {
+  const res = await fetch(`${BASE}/gwa/report/compose-prompt`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  await handle(res)
+  return res.json()
+}
+
+export async function renderGwaReport(payload) {
+  const res = await fetch(`${BASE}/gwa/report/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  await handle(res)
+  return res.blob()
+}
+
 export async function assembleFeasibilityReport(projectAddress, files) {
   const form = new FormData()
   form.append('project_address', projectAddress)
   files.forEach((f) => form.append('files', f))
   const res = await fetch(`${BASE}/feasibility-report/assemble`, { method: 'POST', body: form })
+  await handle(res)
+  return res.blob()
+}
+
+export async function composeFeasibilityReportPrompt(projectAddress, files) {
+  const form = new FormData()
+  form.append('project_address', projectAddress)
+  files.forEach((f) => form.append('files', f))
+  const res = await fetch(`${BASE}/feasibility-report/compose-prompt`, { method: 'POST', body: form })
+  await handle(res)
+  return res.json()
+}
+
+export async function renderFeasibilityReport(projectAddress, responseText) {
+  const res = await fetch(`${BASE}/feasibility-report/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ project_address: projectAddress, response_text: responseText }),
+  })
   await handle(res)
   return res.blob()
 }
@@ -54,6 +93,26 @@ export async function assembleFeasibilityTiers(projectAddress, tier, files) {
   form.append('tier', tier)
   files.forEach((f) => form.append('files', f))
   const res = await fetch(`${BASE}/feasibility-tiers/assemble`, { method: 'POST', body: form })
+  await handle(res)
+  return res.blob()
+}
+
+export async function composeFeasibilityTiersPrompt(projectAddress, tier, files) {
+  const form = new FormData()
+  form.append('project_address', projectAddress)
+  form.append('tier', tier)
+  files.forEach((f) => form.append('files', f))
+  const res = await fetch(`${BASE}/feasibility-tiers/compose-prompt`, { method: 'POST', body: form })
+  await handle(res)
+  return res.json()
+}
+
+export async function renderFeasibilityTiers(projectAddress, tier, responseText) {
+  const res = await fetch(`${BASE}/feasibility-tiers/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ project_address: projectAddress, tier, response_text: responseText }),
+  })
   await handle(res)
   return res.blob()
 }
@@ -70,6 +129,14 @@ export async function extractLandUsePrompt(files) {
   const form = new FormData()
   files.forEach((f) => form.append('files', f))
   const res = await fetch(`${BASE}/prompt-builder/extract`, { method: 'POST', body: form })
+  await handle(res)
+  return res.json()
+}
+
+export async function composeLandUsePrompt(files) {
+  const form = new FormData()
+  files.forEach((f) => form.append('files', f))
+  const res = await fetch(`${BASE}/prompt-builder/compose-prompt`, { method: 'POST', body: form })
   await handle(res)
   return res.json()
 }

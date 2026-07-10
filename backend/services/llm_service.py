@@ -34,6 +34,30 @@ def load_skill_instructions(skill_name: str) -> str:
     return skill_path.read_text(encoding="utf-8")
 
 
+_RUNTIME_NOTE = (
+    "You are running inside a web application, not the Claude Code CLI. There "
+    "is no sandbox filesystem, no ability to shell out to pandoc, LibreOffice, "
+    "or Node.js, and no way to fetch live web pages. Produce your complete "
+    "output as plain text / Markdown in your response — do not refer to "
+    "running scripts, saving files, or fetching URLs. If the skill "
+    "instructions describe a multi-step tool-using workflow, adapt it to a "
+    "single well-structured written response instead."
+)
+
+
+def _build_system_prompt(skill_name: str) -> str:
+    return load_skill_instructions(skill_name) + "\n\n---\n\n" + _RUNTIME_NOTE
+
+
+def _build_user_message(user_inputs: dict, uploaded_files_context: str) -> str:
+    return f"""User inputs provided:
+{user_inputs}
+
+Text content extracted from uploaded files:
+{uploaded_files_context}
+"""
+
+
 def run_claude_skill(
     skill_name: str,
     user_inputs: dict,
@@ -43,26 +67,10 @@ def run_claude_skill(
     """
     Compose a system prompt from the skill's SKILL.md and call Claude with the
     user's structured inputs plus any text extracted from uploaded files.
+    Requires ANTHROPIC_API_KEY to be set.
     """
-    skill_instructions = load_skill_instructions(skill_name)
-
-    system_prompt = (
-        skill_instructions
-        + "\n\n---\n\nYou are running inside a web application, not the Claude Code "
-        "CLI. There is no sandbox filesystem, no ability to shell out to pandoc, "
-        "LibreOffice, or Node.js, and no way to fetch live web pages. Produce your "
-        "complete output as plain text / Markdown in your response — do not refer "
-        "to running scripts, saving files, or fetching URLs. If the skill "
-        "instructions describe a multi-step tool-using workflow, adapt it to a "
-        "single well-structured written response instead."
-    )
-
-    user_message = f"""User inputs provided:
-{user_inputs}
-
-Text content extracted from uploaded files:
-{uploaded_files_context}
-"""
+    system_prompt = _build_system_prompt(skill_name)
+    user_message = _build_user_message(user_inputs, uploaded_files_context)
 
     client = _get_client()
     response = client.messages.create(
@@ -72,3 +80,34 @@ Text content extracted from uploaded files:
         messages=[{"role": "user", "content": user_message}],
     )
     return "".join(block.text for block in response.content if hasattr(block, "text"))
+
+
+def compose_manual_prompt(
+    skill_name: str,
+    user_inputs: dict,
+    uploaded_files_context: str,
+    has_image_files: bool = False,
+) -> str:
+    """
+    Assemble the same skill instructions + inputs as run_claude_skill, but as
+    one self-contained block of text meant to be copy-pasted into a Claude.ai
+    or Claude Code conversation manually — no ANTHROPIC_API_KEY required.
+    """
+    system_prompt = _build_system_prompt(skill_name)
+    user_message = _build_user_message(user_inputs, uploaded_files_context)
+
+    image_note = ""
+    if has_image_files:
+        image_note = (
+            "\n\n---\n\nNOTE: One or more uploaded files were images or scanned "
+            "documents that this tool cannot read as text. Please also attach "
+            "those original files directly to your Claude.ai / Claude Code "
+            "conversation alongside this prompt so Claude can read them "
+            "visually.\n"
+        )
+
+    return f"""{system_prompt}
+
+---
+
+{user_message}{image_note}"""
